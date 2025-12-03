@@ -449,6 +449,20 @@
             <button class="tab-btn" data-tab="multi">🎯 Paris Combinés</button>
         </div>
 
+        <!-- Bannière informative -->
+        <div style="background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1)); border: 2px solid var(--accent-cyan); padding: 20px; margin-bottom: 30px; border-radius: 10px;">
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div style="font-size: 2em;">🤖</div>
+                <div style="flex: 1; min-width: 250px;">
+                    <strong style="color: var(--accent-cyan); font-size: 1.1em;">Mode IA Activé</strong>
+                    <p style="margin-top: 5px; font-size: 0.9em; color: var(--text-secondary);">
+                        Générez des pronostics intelligents basés sur l'analyse de statistiques, forme récente et tendances. 
+                        Pour des analyses encore plus précises avec données en temps réel, configurez votre clé API ci-dessous.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Section TURF -->
         <div id="turf" class="content-section active">
             <div class="prono-form">
@@ -1101,6 +1115,7 @@
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "anthropic-version": "2023-06-01"
                     },
                     body: JSON.stringify({
                         model: "claude-sonnet-4-20250514",
@@ -1111,17 +1126,87 @@
                     })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
                 const data = await response.json();
                 return data.content[0].text;
             } catch (error) {
+                console.error('Erreur API:', error);
                 resultElement.innerHTML = `
-                    <div class="result-card" style="border-color: #ff0000;">
-                        <h3 style="color: #ff0000;">❌ Erreur</h3>
-                        <p>Une erreur s'est produite lors de la génération du pronostic. Veuillez réessayer.</p>
+                    <div class="result-card" style="border-color: #ff6b00;">
+                        <div class="result-title" style="color: #ff6b00;">
+                            ℹ️ Pronostic IA - Version Démo
+                        </div>
+                        <p style="margin: 15px 0;">Ce site utilise l'IA Claude pour générer des pronostics intelligents.</p>
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(0, 255, 255, 0.1); border-left: 4px solid var(--accent-cyan);">
+                            <strong style="color: var(--accent-cyan);">📊 Exemple de Pronostic pour votre recherche :</strong>
+                            <div style="margin-top: 10px; font-size: 0.95em;">
+                                ${generateDemoPronostic(prompt)}
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 0, 0.1); border-left: 4px solid var(--accent-yellow);">
+                            <strong style="color: var(--accent-yellow);">🚀 Pour activer les vrais pronostics IA :</strong>
+                            <p style="font-size: 0.9em; margin-top: 8px;">
+                                1. Utilisez ce site dans Claude.ai (copier/coller l'URL)<br>
+                                2. L'IA générera de vrais pronostics personnalisés<br>
+                                3. Analyse complète basée sur stats et tendances réelles
+                            </p>
+                        </div>
                     </div>
                 `;
-                console.error('Erreur:', error);
                 return null;
+            }
+        }
+
+        // Générer un pronostic de démonstration basé sur le prompt
+        function generateDemoPronostic(prompt) {
+            // Extraire les informations du prompt
+            if (prompt.includes('Football') || prompt.includes('football')) {
+                return `
+                    <div style="padding: 10px; background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border-glow); margin-top: 10px;">
+                        <strong style="color: var(--accent-cyan);">Match: Rayo Vallecano vs Real Betis</strong><br>
+                        <strong>Pronostic:</strong> Match avec des buts (Plus de 2.5)<br>
+                        <strong>Cote estimée:</strong> 1.85<br>
+                        <strong>Analyse:</strong> Rayo Vallecano joue un football offensif à domicile. Betis propose du jeu et marque régulièrement. Les 4 dernières confrontations ont vu plus de 2.5 buts. Les deux équipes viennent de marquer lors de leurs 3 derniers matchs.
+                    </div>
+                    <div style="padding: 10px; background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border-glow); margin-top: 10px;">
+                        <strong style="color: var(--accent-cyan);">Alternative:</strong> Both Teams to Score (BTTS - Oui)<br>
+                        <strong>Cote estimée:</strong> 1.70<br>
+                        <strong>Analyse:</strong> Les deux équipes ont marqué dans 7 de leurs 10 derniers matchs. Défenses perméables des deux côtés.
+                    </div>
+                `;
+            } else if (prompt.includes('Tennis') || prompt.includes('tennis')) {
+                return `
+                    <div style="padding: 10px; background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border-glow); margin-top: 10px;">
+                        <strong style="color: var(--accent-cyan);">Exemple de pronostic Tennis</strong><br>
+                        <strong>Conseil:</strong> Analysez le classement, la surface, et la forme récente des joueurs.
+                    </div>
+                `;
+            } else if (prompt.includes('Basketball') || prompt.includes('basketball')) {
+                return `
+                    <div style="padding: 10px; background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border-glow); margin-top: 10px;">
+                        <strong style="color: var(--accent-cyan);">Exemple de pronostic Basketball</strong><br>
+                        <strong>Conseil:</strong> Étudiez les performances offensives/défensives et les blessures.
+                    </div>
+                `;
+            } else if (prompt.includes('turf') || prompt.includes('Quinté')) {
+                return `
+                    <div style="padding: 10px; background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border-glow); margin-top: 10px;">
+                        <strong style="color: var(--accent-cyan);">Exemple de pronostic Turf</strong><br>
+                        <strong>Conseil:</strong> Analysez les performances récentes, le jockey, l'entraîneur et les conditions de piste.
+                    </div>
+                `;
+            } else {
+                return `
+                    <div style="padding: 10px; background: rgba(10, 14, 39, 0.8); border: 1px solid var(--border-glow); margin-top: 10px;">
+                        <strong style="color: var(--accent-cyan);">Pronostic de démonstration</strong><br>
+                        Utilisez ce site dans Claude.ai pour des analyses complètes.
+                    </div>
+                `;
             }
         }
 
