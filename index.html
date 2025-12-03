@@ -1034,9 +1034,11 @@
             const statusEl = document.getElementById('apiStatus');
             if (statusEl) statusEl.innerHTML = statusHtml;
 
-            // Charger la clé Odds API si présente
-            const oddsKey = localStorage.getItem('oddsApiKey');
-            if (oddsKey) document.getElementById('oddsApiKey').value = oddsKey;
+            // Charger la clé Odds API dans l'input si présente
+            const oddsInput = document.getElementById('oddsApiKey');
+            if (oddsInput && oddsKey) {
+                oddsInput.value = oddsKey;
+            }
         }
 
         // Charger les cotes en direct depuis The Odds API
