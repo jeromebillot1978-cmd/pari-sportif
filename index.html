@@ -1222,26 +1222,50 @@ IMPORTANT: Réponds UNIQUEMENT avec le JSON, sans aucun texte, explication ou fo
         async function generateFootballProno() {
             const league = document.getElementById('footballLeague').value;
             const betType = document.getElementById('footballBetType').value;
-            const match = document.getElementById('footballMatch').value;
+            const match = document.getElementById('footballMatch').value || 'journée complète';
 
-            const prompt = `Tu es un expert en pronostics football. Génère des pronostics pour ${league}, type de pari: ${betType}, match/journée: ${match}.
+            const leagueNames = {
+                'ligue1': 'Ligue 1',
+                'premier': 'Premier League',
+                'liga': 'La Liga',
+                'bundesliga': 'Bundesliga',
+                'seriea': 'Serie A',
+                'championsleague': 'Champions League',
+                'europa': 'Europa League'
+            };
 
-Format de réponse JSON uniquement:
+            const betTypeNames = {
+                '1x2': 'Résultat Final (1X2)',
+                'btts': 'Both Teams to Score (BTTS)',
+                'over': 'Plus/Moins de buts',
+                'score': 'Score Exact',
+                'double': 'Double Chance'
+            };
+
+            const prompt = `Tu es un expert en pronostics football professionnel. Génère 3-5 pronostics détaillés pour la compétition ${leagueNames[league]}, type de pari: ${betTypeNames[betType]}, pour: ${match}.
+
+Analyse les statistiques, la forme récente, les confrontations directes et génère des pronostics réalistes.
+
+Format de réponse STRICTEMENT JSON (sans texte avant ou après, sans markdown):
 {
-    "titre": "Pronostics Football",
-    "confiance": "percentage",
+    "titre": "${leagueNames[league]} - ${betTypeNames[betType]}",
+    "confiance": "pourcentage entre 70% et 95%",
     "pronos": [
         {
             "match": "Équipe A vs Équipe B",
-            "prono": "Le pronostic",
-            "cote": "X.XX",
-            "analyse": "Explication"
+            "prono": "Le pronostic précis (ex: Victoire de A, Plus de 2.5 buts, etc.)",
+            "cote": "cote estimée (ex: 1.85)",
+            "analyse": "Explication détaillée du pronostic basée sur stats et forme"
         }
     ],
-    "conseil": "Conseil général"
+    "conseil": "Conseil de jeu général pour optimiser les paris"
 }
 
-IMPORTANT: Réponds UNIQUEMENT avec le JSON valide, sans texte supplémentaire ni formatage markdown.`;
+IMPORTANT: 
+- Réponds UNIQUEMENT avec un JSON valide
+- Aucun texte avant ou après le JSON
+- Aucun markdown (pas de backticks)
+- Pronostics réalistes basés sur la compétition choisie`;
 
             const btn = event.target;
             btn.disabled = true;
@@ -1261,13 +1285,43 @@ IMPORTANT: Réponds UNIQUEMENT avec le JSON valide, sans texte supplémentaire n
         async function generateTennisProno() {
             const tournament = document.getElementById('tennisTournament').value;
             const betType = document.getElementById('tennisBetType').value;
-            const match = document.getElementById('tennisMatch').value;
+            const match = document.getElementById('tennisMatch').value || 'matchs du jour';
 
-            const prompt = `Tu es un expert en pronostics tennis. Génère des pronostics pour ${tournament}, type de pari: ${betType}, match: ${match}.
+            const tournamentNames = {
+                'grandslam': 'Grand Chelem',
+                'masters1000': 'Masters 1000',
+                'atp500': 'ATP 500',
+                'atp250': 'ATP 250',
+                'wta': 'WTA'
+            };
 
-Format JSON uniquement avec: titre, confiance, pronos (array avec match, prono, cote, analyse), conseil.
+            const betTypeNames = {
+                'winner': 'Vainqueur du match',
+                'sets': 'Nombre de sets',
+                'games': 'Handicap jeux',
+                'exact': 'Score exact'
+            };
 
-IMPORTANT: Réponds UNIQUEMENT avec du JSON valide.`;
+            const prompt = `Tu es un expert en pronostics tennis professionnel. Génère 3-5 pronostics détaillés pour ${tournamentNames[tournament]}, type de pari: ${betTypeNames[betType]}, pour: ${match}.
+
+Analyse le classement ATP/WTA, la surface, la forme récente, les face-à-face.
+
+Format JSON strict (sans markdown, sans texte supplémentaire):
+{
+    "titre": "${tournamentNames[tournament]} - ${betTypeNames[betType]}",
+    "confiance": "pourcentage entre 70% et 95%",
+    "pronos": [
+        {
+            "match": "Joueur A vs Joueur B",
+            "prono": "Pronostic précis",
+            "cote": "cote estimée",
+            "analyse": "Analyse détaillée avec stats, surface, forme"
+        }
+    ],
+    "conseil": "Conseil de jeu"
+}
+
+UNIQUEMENT le JSON, rien d'autre.`;
 
             const btn = event.target;
             btn.disabled = true;
@@ -1287,13 +1341,42 @@ IMPORTANT: Réponds UNIQUEMENT avec du JSON valide.`;
         async function generateBasketProno() {
             const league = document.getElementById('basketLeague').value;
             const betType = document.getElementById('basketBetType').value;
-            const match = document.getElementById('basketMatch').value;
+            const match = document.getElementById('basketMatch').value || 'matchs du jour';
 
-            const prompt = `Tu es un expert en pronostics basketball. Génère des pronostics pour ${league}, type de pari: ${betType}, match: ${match}.
+            const leagueNames = {
+                'nba': 'NBA',
+                'euroleague': 'Euroleague',
+                'betclic': 'Betclic Elite (France)',
+                'ncaa': 'NCAA'
+            };
 
-Format JSON uniquement avec: titre, confiance, pronos (array avec match, prono, cote, analyse), conseil.
+            const betTypeNames = {
+                'winner': 'Vainqueur',
+                'spread': 'Handicap',
+                'total': 'Total Points',
+                'quarter': 'Par Quart-temps'
+            };
 
-IMPORTANT: Réponds UNIQUEMENT avec du JSON valide.`;
+            const prompt = `Tu es un expert en pronostics basketball professionnel. Génère 3-5 pronostics détaillés pour ${leagueNames[league]}, type de pari: ${betTypeNames[betType]}, pour: ${match}.
+
+Analyse les performances offensives/défensives, les blessures, la forme récente.
+
+Format JSON strict (sans markdown):
+{
+    "titre": "${leagueNames[league]} - ${betTypeNames[betType]}",
+    "confiance": "pourcentage entre 70% et 95%",
+    "pronos": [
+        {
+            "match": "Équipe A vs Équipe B",
+            "prono": "Pronostic précis",
+            "cote": "cote estimée",
+            "analyse": "Analyse détaillée avec stats et tendances"
+        }
+    ],
+    "conseil": "Conseil de jeu"
+}
+
+UNIQUEMENT le JSON.`;
 
             const btn = event.target;
             btn.disabled = true;
@@ -1313,13 +1396,42 @@ IMPORTANT: Réponds UNIQUEMENT avec du JSON valide.`;
         async function generateMultiProno() {
             const count = document.getElementById('multiCount').value;
             const risk = document.getElementById('riskLevel').value;
-            const sports = document.getElementById('multiSports').value;
+            const sports = document.getElementById('multiSports').value || 'Football, Tennis, Basketball';
 
-            const prompt = `Tu es un expert en paris combinés. Génère un combiné de ${count} sélections avec niveau de risque ${risk}, sports: ${sports || 'variés'}.
+            const riskNames = {
+                'safe': 'Sûr (cotes 1.20-1.50)',
+                'medium': 'Équilibré (cotes 1.50-2.00)',
+                'risky': 'Risqué (cotes 2.00+)'
+            };
 
-Format JSON avec: titre, coteTotal, confiance, selections (array avec sport, match, prono, cote, analyse), conseil.
+            const prompt = `Tu es un expert en paris combinés sportifs. Génère un combiné intelligent de ${count} sélections avec niveau de risque ${riskNames[risk]}, sports préférés: ${sports}.
 
-IMPORTANT: Réponds UNIQUEMENT avec du JSON valide.`;
+Sélectionne des matchs cohérents pour maximiser les chances de gain tout en offrant une cote attractive.
+
+Format JSON strict (sans markdown):
+{
+    "titre": "Paris Combiné ${count} Sélections",
+    "coteTotal": "cote totale du combiné (multiplication des cotes)",
+    "confiance": "pourcentage entre 65% et 90%",
+    "selections": [
+        {
+            "sport": "Football/Tennis/Basketball",
+            "match": "Équipe/Joueur A vs Équipe/Joueur B",
+            "prono": "Pronostic précis",
+            "cote": "cote individuelle",
+            "analyse": "Justification du choix"
+        }
+    ],
+    "conseil": "Stratégie de mise et conseils pour ce combiné"
+}
+
+Assure-toi que:
+- Les ${count} sélections sont variées
+- Les cotes respectent le niveau de risque demandé
+- La cote totale est cohérente (multiplication des cotes individuelles)
+- Chaque sélection est bien justifiée
+
+UNIQUEMENT le JSON, rien d'autre.`;
 
             const btn = event.target;
             btn.disabled = true;
