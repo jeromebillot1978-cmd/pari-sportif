@@ -1078,11 +1078,14 @@
                             Configurez votre clé The Odds API dans l'onglet Configuration pour accéder aux cotes en temps réel.
                             <br><br>
                             <a href="https://the-odds-api.com" target="_blank" class="btn" style="margin-top: 0.5rem;">
-                                Obtenir une clé gratuite
+                                Obtenir une clé gratuite (500 requêtes/mois)
                             </a>
                         </div>
                     </div>
                 `;
+                
+                // Afficher des données de démo
+                displayDemoOdds(sport);
                 return;
             }
 
@@ -1105,7 +1108,7 @@
                 );
 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
+                    throw new Error(`API Error: ${response.status} - ${response.statusText}`);
                 }
 
                 const data = await response.json();
@@ -1121,6 +1124,7 @@
                             <div>Aucun match disponible actuellement pour cette compétition.</div>
                         </div>
                     `;
+                    displayDemoOdds(sport);
                     return;
                 }
 
@@ -1133,12 +1137,136 @@
                     <div class="alert alert-warning" style="margin-top: 1rem;">
                         <span class="alert-icon">⚠️</span>
                         <div>
-                            <strong>Erreur de chargement</strong><br>
-                            ${error.message}. Vérifiez votre clé API dans la configuration.
+                            <strong>Erreur de connexion à l'API</strong><br>
+                            ${error.message}
+                            <br><br>
+                            <strong>Causes possibles :</strong><br>
+                            • Clé API invalide ou expirée<br>
+                            • Quota de requêtes dépassé (500/mois gratuit)<br>
+                            • Problème de connexion réseau<br>
+                            <br>
+                            <button class="btn" onclick="displayDemoOdds('${sport}')" style="margin-top: 0.5rem;">
+                                📊 Afficher des exemples de cotes
+                            </button>
                         </div>
                     </div>
                 `;
             }
+        }
+
+        // Afficher des cotes de démonstration
+        function displayDemoOdds(sport) {
+            const demoData = generateDemoOddsData(sport);
+            
+            const container = document.getElementById('liveOddsContainer');
+            const infoHtml = `
+                <div class="alert alert-info" style="margin-top: 1rem;">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Mode Démonstration</strong><br>
+                        Exemples de cotes pour vous montrer l'interface. Configurez votre clé API pour des données réelles.
+                    </div>
+                </div>
+            `;
+            
+            displayLiveOdds(demoData);
+            document.getElementById('liveOddsContainer').innerHTML = infoHtml + document.getElementById('liveOddsContainer').innerHTML;
+            displayBestOddsComparison(demoData);
+        }
+
+        // Générer des données de démo réalistes
+        function generateDemoOddsData(sport) {
+            const sportNames = {
+                'soccer_france_ligue_one': 'Ligue 1',
+                'soccer_epl': 'Premier League',
+                'soccer_spain_la_liga': 'La Liga',
+                'soccer_germany_bundesliga': 'Bundesliga',
+                'soccer_italy_serie_a': 'Serie A',
+                'basketball_nba': 'NBA',
+                'tennis_atp': 'ATP'
+            };
+
+            const matches = {
+                'soccer_france_ligue_one': [
+                    { home: 'PSG', away: 'Olympique Marseille', homeOdds: 1.65, drawOdds: 3.80, awayOdds: 5.20 },
+                    { home: 'Monaco', away: 'Lyon', homeOdds: 2.10, drawOdds: 3.20, awayOdds: 3.40 },
+                    { home: 'Lille', away: 'Nice', homeOdds: 1.95, drawOdds: 3.50, awayOdds: 3.80 }
+                ],
+                'soccer_epl': [
+                    { home: 'Manchester City', away: 'Liverpool', homeOdds: 1.85, drawOdds: 3.60, awayOdds: 4.00 },
+                    { home: 'Arsenal', away: 'Chelsea', homeOdds: 2.20, drawOdds: 3.30, awayOdds: 3.10 },
+                    { home: 'Manchester United', away: 'Tottenham', homeOdds: 2.40, drawOdds: 3.40, awayOdds: 2.90 }
+                ],
+                'soccer_spain_la_liga': [
+                    { home: 'Real Madrid', away: 'Barcelona', homeOdds: 2.30, drawOdds: 3.20, awayOdds: 3.00 },
+                    { home: 'Atletico Madrid', away: 'Sevilla', homeOdds: 1.75, drawOdds: 3.70, awayOdds: 4.50 },
+                    { home: 'Valencia', away: 'Real Sociedad', homeOdds: 2.60, drawOdds: 3.10, awayOdds: 2.70 }
+                ],
+                'basketball_nba': [
+                    { home: 'Los Angeles Lakers', away: 'Golden State Warriors', homeOdds: 1.90, awayOdds: 1.95 },
+                    { home: 'Boston Celtics', away: 'Miami Heat', homeOdds: 1.70, awayOdds: 2.20 },
+                    { home: 'Milwaukee Bucks', away: 'Phoenix Suns', homeOdds: 1.85, awayOdds: 2.00 }
+                ],
+                'tennis_atp': [
+                    { home: 'Novak Djokovic', away: 'Carlos Alcaraz', homeOdds: 1.72, awayOdds: 2.15 },
+                    { home: 'Rafael Nadal', away: 'Daniil Medvedev', homeOdds: 1.95, awayOdds: 1.90 },
+                    { home: 'Jannik Sinner', away: 'Alexander Zverev', homeOdds: 1.65, awayOdds: 2.30 }
+                ]
+            };
+
+            const matchList = matches[sport] || matches['soccer_france_ligue_one'];
+            const sportTitle = sportNames[sport] || 'Football';
+            
+            return matchList.map((match, index) => {
+                const now = Date.now();
+                const timeOffsets = [3600000, 7200000, 14400000]; // 1h, 2h, 4h
+                
+                return {
+                    id: `demo-${index}`,
+                    sport_title: sportTitle,
+                    commence_time: new Date(now + timeOffsets[index % 3]).toISOString(),
+                    home_team: match.home,
+                    away_team: match.away,
+                    bookmakers: [
+                        {
+                            key: 'winamax',
+                            title: 'Winamax',
+                            markets: [{
+                                key: 'h2h',
+                                outcomes: [
+                                    { name: match.home, price: match.homeOdds },
+                                    match.drawOdds ? { name: 'Draw', price: match.drawOdds } : null,
+                                    { name: match.away, price: match.awayOdds }
+                                ].filter(Boolean)
+                            }]
+                        },
+                        {
+                            key: 'betclic',
+                            title: 'Betclic',
+                            markets: [{
+                                key: 'h2h',
+                                outcomes: [
+                                    { name: match.home, price: match.homeOdds + 0.05 },
+                                    match.drawOdds ? { name: 'Draw', price: match.drawOdds + 0.10 } : null,
+                                    { name: match.away, price: match.awayOdds - 0.05 }
+                                ].filter(Boolean)
+                            }]
+                        },
+                        {
+                            key: 'unibet',
+                            title: 'Unibet',
+                            markets: [{
+                                key: 'h2h',
+                                outcomes: [
+                                    { name: match.home, price: match.homeOdds - 0.03 },
+                                    match.drawOdds ? { name: 'Draw', price: match.drawOdds - 0.05 } : null,
+                                    { name: match.away, price: match.awayOdds + 0.08 }
+                                ].filter(Boolean)
+                            }]
+                        }
+                    ]
+                };
+            });
         }
 
         // Afficher les cotes live
@@ -1162,7 +1290,7 @@
                     bookmakers = bookmakers.filter(b => b.key.includes(bookmakerFilter));
                 }
 
-                if (bookmakers.length === 0) continue;
+                if (bookmakers.length === 0) return; // Utiliser return au lieu de continue dans forEach
 
                 html += `
                     <div class="card" style="margin-top: 1rem;">
@@ -1398,6 +1526,10 @@ Format JSON strict:
             const apiKey = localStorage.getItem('oddsApiKey');
             if (apiKey) {
                 loadLiveOdds();
+            } else {
+                // Charger les cotes démo par défaut
+                const sport = document.getElementById('liveSport').value;
+                displayDemoOdds(sport);
             }
         });
 
